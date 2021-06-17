@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!-- By Swatchai Kriengkraipet; June 2021  -->
+<!-- Purposes: server read this file, send to clients on request -->
+<html>
+<title>RPI as server, GPIO Control Web Apps</title>
+
+<body>
+    <h2>Control GPIO X</h2>
+    <p><b>This will works when connection status is ready.</b>
+       <br/><b>Connection status: </b><span id="conx_status">Unknown</span></p>
+    <br/><button type="button" id="state1" onclick="R_LEDOn()" style="background-color:red;height:140px;width:160px;"><span style="font-size:40px;color:white">ON</span></button>
+    &nbsp;<button type="button" id="state1" onclick="R_LEDOff()" style="background-color:gray;height:140px;width:160px;"><span style="font-size:40px;color:white">OFF</span></button>
+    &nbsp;<button type="button" id="state1" onclick="RGB_blink(1)" style="background-color:#F6B6A6;height:140px;width:160px;"><span style="font-size:40px;color:black">Blink</span></button>
+
+    <br/><br/><button type="button" id="state2" onclick="G_LEDOn()" style="background-color:green;height:140px;width:160px;"><span style="font-size:40px;color:white">ON</span></button>
+    &nbsp;<button type="button" id="state2" onclick="G_LEDOff()" style="background-color:gray;height:140px;width:160px;"><span style="font-size:40px;color:white">OFF</span></button>
+    &nbsp;<button type="button" id="state2" onclick="RGB_blink(2)" style="background-color:#BADA55;height:140px;width:160px;"><span style="font-size:40px;color:black">Blink</span></button>
+
+    <br/><br/><button type="button" id="state3" onclick="B_LEDOn()" style="background-color:blue;height:140px;width:160px;"><span style="font-size:40px;color:white">ON</span></button>
+    &nbsp;<button type="button" id="state3" onclick="B_LEDOff()" style="background-color:gray;height:140px;width:160px;"><span style="font-size:40px;color:white">OFF</span></button> 
+    &nbsp;<button type="button" id="state3" onclick="RGB_blink(3)" style="background-color:#AFEEEE;height:140px;width:160px;"><span style="font-size:40px;color:black">Blink</span></button>
+
+
+    <script src="https://cdn.socket.io/4.1.1/socket.io.min.js" integrity="sha384-cdrFIqe3RasCMNE0jeFG9xJHog/tgOVC1E9Lzve8LQN1g5WUHo0Kvk1mawWjxX7a" crossorigin="anonymous"></script>
+
+    <script>
+	const RLED_STATE = 'state1';
+	const GLED_STATE = 'state2';
+	const BLED_STATE = 'state3';
+	const ON_STATE = 1;
+	const FF_STATE = 0;
+	const XO_STATE = 2;
+
+        var socket = io.connect(); //load socket.io-client, connect to the host
+	
+	// client-side
+	socket.on("connect", () => {
+	  // OK it works on the browser.
+	  console.log("Socket ID: "+socket.id);
+	  document.getElementById("conx_status").innerHTML="Ready";
+	});
+	socket.on("disconnect", () => {
+	  console.log("EVT/disconnect, socket.id: ", socket.id); // undefined
+	  // TODO: use this to handle/write disconnect status on the page
+	  document.getElementById("conx_status").innerHTML="Disconnected";
+	});
+	
+
+	// RED LED
+        function R_LEDOn() {
+            socket.emit(RLED_STATE, ON_STATE); //send button state to server
+        }
+        function R_LEDOff() {
+            socket.emit(RLED_STATE, FF_STATE);
+        }
+
+        // GREEN LED
+	function G_LEDOn() {
+            socket.emit(GLED_STATE, ON_STATE);
+        }
+        function G_LEDOff() {
+            socket.emit(GLED_STATE, FF_STATE);
+        }
+
+	// BLUE LED
+        function B_LEDOn() {
+            socket.emit(BLED_STATE, ON_STATE);
+        }
+        function B_LEDOff() {
+            socket.emit(BLED_STATE, FF_STATE);
+        }
+	function RGB_blink(flg=0) {
+	  //flg: hard coded values in widgets' on-click codes
+	  if (flg==1){socket.emit(RLED_STATE, XO_STATE)}
+	  if (flg==2){socket.emit(GLED_STATE, XO_STATE)}
+	  if (flg==3){socket.emit(BLED_STATE, XO_STATE)}
+	}
+    </script>
+
+</html>
+</body>
+
+</html>
